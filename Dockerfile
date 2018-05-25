@@ -1,4 +1,4 @@
-OM node:8
+FROM node:8
 
 MAINTAINER Nick Shore <nicholas.shore@johnlewis.co.uk>
 
