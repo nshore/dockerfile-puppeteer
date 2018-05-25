@@ -1,6 +1,8 @@
-FROM node:8-slim
+OM node:8
 
-MAINTAINER Nick Shore <anna.weaver@johnlewis.co.uk>
+MAINTAINER Nick Shore <nicholas.shore@johnlewis.co.uk>
+
+# Inspired by https://github.com/GoogleChrome/puppeteer/blob/master/docs/troubleshooting.md
 
 # See https://crbug.com/795759
 RUN apt-get update && apt-get install -yq libgconf-2-4
@@ -18,40 +20,5 @@ RUN apt-get update && apt-get install -y wget --no-install-recommends \
     && apt-get purge --auto-remove -y curl \
     && rm -rf /src/*.deb
 
-# It's a good idea to use dumb-init to help prevent zombie chrome processes.
-ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64 /usr/local/bin/dumb-init
-RUN chmod +x /usr/local/bin/dumb-init
-
-# Uncomment to skip the chromium download when installing puppeteer. If you do,
-# you'll need to launch puppeteer with:
-#     browser.launch({executablePath: 'google-chrome-unstable'})
-# ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
-
-# Install puppeteer so it's available in the container.
-RUN npm i puppeteer
-
-# Add user so we don't need --no-sandbox.
-RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
-    && mkdir -p /home/pptruser/Downloads \
-    && chown -R pptruser:pptruser /home/pptruser
-    #&& chown -R pptruser:pptruser /node_modules
-
-RUN ls -al
-## Run everything after as non-privileged user.
-
-ADD web /web
-
-RUN ls -al
-RUN chown -R pptruser:pptruser /web
-
-WORKDIR web
-
-RUN ls -al
-
-#USER pptruser
-
-RUN npm install
-
-#ENTRYPOINT ["dumb-init", "--"]
-CMD ["npm", "start"]
+ENTRYPOINT ["dumb-init", "--"]
 
